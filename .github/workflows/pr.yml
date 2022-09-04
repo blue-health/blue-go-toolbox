@@ -1,0 +1,12 @@
+name: Pull Request
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - "*"
+
+jobs:
+  ci:
+    name: CI
+    uses: blue-health/identity-srv/.github/workflows/ci.yml@develop
