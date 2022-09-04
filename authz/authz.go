@@ -36,8 +36,7 @@ func (g *GuardImpl) Check(permissions ...string) func(http.Handler) http.Handler
 				return
 			}
 
-			ok, err := g.authorizer.Authorize(r.Context(), id, permissions...)
-			if err != nil || !ok {
+			if ok, err := g.authorizer.Authorize(r.Context(), id, permissions...); err != nil || !ok {
 				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 				return
 			}
