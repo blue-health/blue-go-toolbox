@@ -35,7 +35,7 @@ func Union[T comparable](i ...Set[T]) Set[T] {
 	return s
 }
 
-func Flatten[T comparable](s Set[T]) []T {
+func ToSlice[T comparable](s Set[T]) []T {
 	r := make([]T, 0, len(s))
 
 	for x := range s {
