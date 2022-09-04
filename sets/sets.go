@@ -35,21 +35,21 @@ func Union[T comparable](i ...Set[T]) Set[T] {
 	return s
 }
 
-func ToSlice[T comparable](s Set[T]) []T {
-	r := make([]T, 0, len(s))
-
-	for x := range s {
-		r = append(r, x)
-	}
-
-	return r
-}
-
 func FromSlice[T comparable](s []T) Set[T] {
 	r := make(Set[T], len(s))
 
 	for x := range s {
 		r[s[x]] = struct{}{}
+	}
+
+	return r
+}
+
+func (s Set[T]) ToSlice() []T {
+	r := make([]T, 0, len(s))
+
+	for x := range s {
+		r = append(r, x)
 	}
 
 	return r
