@@ -59,6 +59,8 @@ func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error)
 
 	switch g := u.(type) {
 	case ValidationError:
+		e = g
+
 		if g.Root != nil {
 			n := unwrap(g.Root)
 			m = n.Error()
@@ -73,6 +75,7 @@ func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error)
 		}
 
 	case validator.ValidationErrors:
+		e = g
 		s = http.StatusBadRequest
 		m = "bad_request"
 
@@ -95,10 +98,10 @@ func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(s)
 
-	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: unwrap(e).Error(), Fields: f}})
+	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: m, Fields: f}})
 
 	l.l.Log(logging.Entry{
-		Payload:  m,
+		Payload:  e.Error(),
 		Severity: v,
 		HTTPRequest: &logging.HTTPRequest{
 			Request:  r,
