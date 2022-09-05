@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"cloud.google.com/go/logging"
+	"github.com/blue-health/blue-go-toolbox/authn"
 	"github.com/go-playground/validator"
 )
 
@@ -35,6 +36,7 @@ func (l Logger) LogResponse(r *http.Request, w http.ResponseWriter, s int, m str
 	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: http.StatusText(s)}})
 
 	l.l.Log(logging.Entry{
+		Labels:   getLabels(r),
 		Payload:  m,
 		Severity: v,
 		HTTPRequest: &logging.HTTPRequest{
@@ -101,6 +103,7 @@ func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error)
 	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: m, Fields: f}})
 
 	l.l.Log(logging.Entry{
+		Labels:   getLabels(r),
 		Payload:  e.Error(),
 		Severity: v,
 		HTTPRequest: &logging.HTTPRequest{
@@ -122,4 +125,14 @@ func (l Logger) Log(v logging.Severity, m string, f LogFields) {
 		Payload:  m,
 		Severity: v,
 	})
+}
+
+func getLabels(r *http.Request) map[string]string {
+	m := make(map[string]string, 0)
+
+	if i, ok := authn.GetIdentityID(r.Context()); ok {
+		m["identity_id"] = i.String()
+	}
+
+	return m
 }
