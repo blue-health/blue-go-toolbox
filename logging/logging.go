@@ -1,0 +1,122 @@
+package logging
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"cloud.google.com/go/logging"
+	"github.com/go-playground/validator"
+)
+
+type (
+	Logger struct{ l *logging.Logger }
+
+	LogFields map[string]interface{}
+)
+
+func Get(l *logging.Logger) Logger { return Logger{l: l} }
+
+func (l Logger) LogResponse(r *http.Request, w http.ResponseWriter, s int, m string) {
+	var v logging.Severity
+
+	switch {
+	case s < http.StatusBadRequest:
+		v = logging.Info
+	case s >= http.StatusBadRequest && s < http.StatusInternalServerError:
+		v = logging.Warning
+	default:
+		v = logging.Error
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(s)
+
+	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: http.StatusText(s)}})
+
+	l.l.Log(logging.Entry{
+		Payload:  m,
+		Severity: v,
+		HTTPRequest: &logging.HTTPRequest{
+			Request:  r,
+			Status:   s,
+			RemoteIP: r.Header.Get("X-Forwarded-For"),
+		},
+	})
+}
+
+func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error) {
+	var (
+		u = unwrap(e)
+		m = e.Error()
+		s = http.StatusInternalServerError
+		f []apiField
+	)
+
+	if v, ok := errorMap[e]; ok {
+		s = v
+	}
+
+	switch g := u.(type) {
+	case ValidationError:
+		if g.Root != nil {
+			n := unwrap(g.Root)
+			m = n.Error()
+
+			if v, ok := errorMap[n]; ok {
+				s = v
+			}
+		}
+
+		for i := range g.Details {
+			f = append(f, apiField{Name: toSnakeCase(g.Details[i].StructNamespace())})
+		}
+
+	case validator.ValidationErrors:
+		s = http.StatusBadRequest
+		m = "bad_request"
+
+		for i := range g {
+			f = append(f, apiField{Name: toSnakeCase(g[i].StructNamespace())})
+		}
+	}
+
+	var v logging.Severity
+
+	switch {
+	case s < http.StatusBadRequest:
+		v = logging.Info
+	case s >= http.StatusBadRequest && s < http.StatusInternalServerError:
+		v = logging.Warning
+	default:
+		v = logging.Error
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(s)
+
+	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: unwrap(e).Error(), Fields: f}})
+
+	l.l.Log(logging.Entry{
+		Payload:  m,
+		Severity: v,
+		HTTPRequest: &logging.HTTPRequest{
+			Request:  r,
+			Status:   s,
+			RemoteIP: r.Header.Get("X-Forwarded-For"),
+		},
+	})
+}
+
+func (l Logger) Log(v logging.Severity, m string, f LogFields) {
+	s := make(map[string]string, len(f))
+	for k, v := range f {
+		s[k] = fmt.Sprintf("%+v", v)
+	}
+
+	l.l.Log(logging.Entry{
+		Labels:   s,
+		Payload:  m,
+		Severity: v,
+	})
+}
