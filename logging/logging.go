@@ -11,12 +11,16 @@ import (
 )
 
 type (
-	Logger struct{ l *logging.Logger }
+	Logger struct{ l CloudLogger }
 
 	LogFields map[string]interface{}
+
+	CloudLogger interface {
+		Log(e logging.Entry)
+	}
 )
 
-func Get(l *logging.Logger) Logger { return Logger{l: l} }
+func Get(l CloudLogger) Logger { return Logger{l: l} }
 
 func (l Logger) LogResponse(r *http.Request, w http.ResponseWriter, s int, m string) {
 	var v logging.Severity
