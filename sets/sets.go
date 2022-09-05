@@ -76,3 +76,17 @@ func min[T comparable](i ...Set[T]) int {
 
 	return m
 }
+
+func Equal[T comparable](i ...Set[T]) bool {
+	for _, a := range i {
+		for k := range a {
+			for _, b := range i {
+				if _, ok := b[k]; !ok {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
+}
