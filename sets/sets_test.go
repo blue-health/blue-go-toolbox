@@ -40,6 +40,48 @@ func TestSum(t *testing.T) {
 	}
 }
 
+func TestUnion(t *testing.T) {
+	testCases := []struct {
+		name string
+		a    sets.Set[int]
+		b    sets.Set[int]
+		c    sets.Set[int]
+	}{
+		{
+			name: "equal sets no change",
+			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			b:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			c:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+		},
+		{
+			name: "different sets only one common",
+			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			b:    sets.Set[int]{1: struct{}{}, 5: struct{}{}, 6: struct{}{}},
+			c:    sets.Set[int]{1: struct{}{}},
+		},
+		{
+			name: "different sets two common",
+			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			b:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 6: struct{}{}},
+			c:    sets.Set[int]{1: struct{}{}, 2: struct{}{}},
+		},
+		{
+			name: "different sets nothing common",
+			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			b:    sets.Set[int]{4: struct{}{}, 5: struct{}{}, 6: struct{}{}},
+			c:    sets.Set[int]{},
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(c.name, func(t *testing.T) {
+			d := sets.Union(c.a, c.b)
+
+			require.Equal(t, c.c, d)
+		})
+	}
+}
+
 func TestEqual(t *testing.T) {
 	testCases := []struct {
 		name  string
