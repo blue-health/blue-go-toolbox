@@ -59,7 +59,7 @@ func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error)
 		f []apiField
 	)
 
-	if v, ok := errorMap[e]; ok {
+	if v, ok := errorMap[e.Error()]; ok {
 		s = v
 	}
 
@@ -71,7 +71,7 @@ func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error)
 			n := unwrap(g.Root)
 			m = n.Error()
 
-			if v, ok := errorMap[n]; ok {
+			if v, ok := errorMap[n.Error()]; ok {
 				s = v
 			}
 		}

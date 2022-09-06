@@ -13,7 +13,7 @@ type ValidationError struct {
 	Details validator.ValidationErrors
 }
 
-var errorMap = map[error]int{}
+var errorMap = map[string]int{}
 
 var (
 	matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
@@ -22,7 +22,7 @@ var (
 
 func RegisterErrors(m map[error]int) {
 	for k, v := range m {
-		errorMap[k] = v
+		errorMap[k.Error()] = v
 	}
 }
 

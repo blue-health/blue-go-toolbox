@@ -1,6 +1,7 @@
 package logging_test
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -85,6 +86,56 @@ func TestLogResponse(t *testing.T) {
 			s := string(w.buf)
 
 			require.Contains(t, s, http.StatusText(c.statusCode))
+			require.Equal(t, c.statusCode, w.statusCode)
+		})
+	}
+}
+
+func TestLogServiceError(t *testing.T) {
+	testCases := []struct {
+		name       string
+		err        error
+		statusCode int
+		msg        string
+		severity   logging.Severity
+	}{
+		{
+			name:       "server error",
+			severity:   logging.Error,
+			statusCode: http.StatusInternalServerError,
+			err:        errors.New("huge error"),
+			msg:        "huge error",
+		},
+		{
+			name:       "validation error",
+			severity:   logging.Error,
+			statusCode: http.StatusInternalServerError,
+			err:        blueLogging.ValidationError{Root: errors.New("root error")},
+			msg:        "root error",
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(c.name, func(t *testing.T) {
+			var (
+				r               = &http.Request{}
+				mockCloudLogger = new(MockCloudLogger)
+				w               = &FakeWriter{}
+			)
+
+			mockCloudLogger.On("Log", mock.MatchedBy(func(e logging.Entry) bool {
+				return e.Severity == c.severity
+			}))
+
+			logger := blueLogging.Get(mockCloudLogger)
+
+			logger.LogServiceError(r, w, c.err)
+
+			mockCloudLogger.AssertExpectations(t)
+
+			s := string(w.buf)
+
+			require.Contains(t, s, c.msg)
 			require.Equal(t, c.statusCode, w.statusCode)
 		})
 	}
