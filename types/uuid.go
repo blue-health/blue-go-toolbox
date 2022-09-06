@@ -21,3 +21,7 @@ func (u UUID) ToUUID() uuid.UUID {
 
 	return uuid.Nil
 }
+
+func (u UUID) Valid() bool {
+	return u.Status == pgtype.Present
+}
