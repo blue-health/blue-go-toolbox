@@ -22,7 +22,11 @@ type (
 
 func Get(l CloudLogger) Logger { return Logger{l: l} }
 
-func (l Logger) LogResponse(r *http.Request, w http.ResponseWriter, s int, m string) {
+func (l Logger) LogResponse(w http.ResponseWriter, r *http.Request, s int) {
+	l.LogResponseMessage(w, r, s, http.StatusText(s))
+}
+
+func (l Logger) LogResponseMessage(w http.ResponseWriter, r *http.Request, s int, m string) {
 	var v logging.Severity
 
 	switch {
@@ -37,7 +41,7 @@ func (l Logger) LogResponse(r *http.Request, w http.ResponseWriter, s int, m str
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(s)
 
-	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: http.StatusText(s)}})
+	_ = json.NewEncoder(w).Encode(apiError{Error: apiMsg{Message: m}})
 
 	l.l.Log(logging.Entry{
 		Labels:   getLabels(r),
@@ -51,7 +55,7 @@ func (l Logger) LogResponse(r *http.Request, w http.ResponseWriter, s int, m str
 	})
 }
 
-func (l Logger) LogServiceError(r *http.Request, w http.ResponseWriter, e error) {
+func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error) {
 	var (
 		u = unwrap(e)
 		m = e.Error()

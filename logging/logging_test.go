@@ -79,13 +79,13 @@ func TestLogResponse(t *testing.T) {
 
 			logger := blueLogging.Get(mockCloudLogger)
 
-			logger.LogResponse(r, w, c.statusCode, c.message)
+			logger.LogResponseMessage(w, r, c.statusCode, c.message)
 
 			mockCloudLogger.AssertExpectations(t)
 
 			s := string(w.buf)
 
-			require.Contains(t, s, http.StatusText(c.statusCode))
+			require.Contains(t, s, c.message)
 			require.Equal(t, c.statusCode, w.statusCode)
 		})
 	}
@@ -129,7 +129,7 @@ func TestLogServiceError(t *testing.T) {
 
 			logger := blueLogging.Get(mockCloudLogger)
 
-			logger.LogServiceError(r, w, c.err)
+			logger.LogServiceError(w, r, c.err)
 
 			mockCloudLogger.AssertExpectations(t)
 
