@@ -15,6 +15,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 	gopkg.in/guregu/null.v4 v4.0.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -51,5 +52,4 @@ require (
 	google.golang.org/grpc v1.49.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

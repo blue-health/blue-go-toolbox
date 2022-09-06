@@ -10,8 +10,17 @@ type JSON pgtype.JSON
 
 var ErrJSONInvalid = errors.New("json_invalid")
 
-func (j JSON) MarshalYAML() ([]byte, error) {
-	return j.Bytes, nil
+func (j JSON) MarshalYAML() (interface{}, error) {
+	switch j.Status {
+	case pgtype.Present:
+		return string(j.Bytes), nil
+	case pgtype.Null:
+		return "", nil
+	case pgtype.Undefined:
+		return nil, ErrJSONInvalid
+	}
+
+	return nil, ErrJSONInvalid
 }
 
 func (j *JSON) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -20,11 +29,16 @@ func (j *JSON) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	if j == nil {
-		return ErrJSONInvalid
+	if s == "" || s == "null" {
+		*j = JSON{
+			Status: pgtype.Null,
+		}
+	} else {
+		*j = JSON{
+			Bytes:  []byte(s),
+			Status: pgtype.Present,
+		}
 	}
-
-	j.Bytes = append(j.Bytes, s...)
 
 	return nil
 }
