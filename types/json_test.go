@@ -110,7 +110,7 @@ func TestJSONUnmarshalYAML(t *testing.T) {
 			err := yaml.Unmarshal([]byte(c.in), &ts)
 			require.Nil(t, err)
 
-			if c.out.Status == pgtype.Present {
+			if c.out.Valid() {
 				require.Equal(t, c.out, ts.JS)
 			}
 		})
