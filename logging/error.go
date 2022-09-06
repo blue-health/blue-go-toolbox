@@ -9,8 +9,9 @@ import (
 )
 
 type ValidationError struct {
-	Root    error
-	Details validator.ValidationErrors
+	Root      error
+	Namespace string
+	Details   validator.ValidationErrors
 }
 
 var errorMap = map[string]int{}
@@ -38,11 +39,30 @@ func FailValidation(root, details error) ValidationError {
 	return v
 }
 
+func FailNamespacedValidation(root, err error, namespace string) error {
+	var v ValidationError
+
+	v.Root = root
+	v.Namespace = namespace
+
+	if e, ok := err.(validator.ValidationErrors); ok {
+		v.Details = e
+	}
+
+	return &v
+}
+
 func (e ValidationError) Error() string {
 	var sb strings.Builder
 
 	if e.Root != nil {
 		sb.WriteString(e.Root.Error())
+	}
+
+	if e.Namespace != "" {
+		sb.WriteString(" (")
+		sb.WriteString(e.Namespace)
+		sb.WriteString(")")
 	}
 
 	if len(e.Details) > 0 {
