@@ -1,4 +1,4 @@
-package types
+package datetime
 
 import "time"
 

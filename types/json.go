@@ -10,6 +10,21 @@ type JSON pgtype.JSON
 
 var ErrJSONInvalid = errors.New("json_invalid")
 
+func FromBytes(b []byte) JSON {
+	return JSON{
+		Bytes:  b,
+		Status: pgtype.Present,
+	}
+}
+
+func (j JSON) ToBytes() []byte {
+	if j.Status == pgtype.Present {
+		return j.Bytes
+	}
+
+	return []byte{}
+}
+
 func (j JSON) MarshalYAML() (interface{}, error) {
 	switch j.Status {
 	case pgtype.Present:
