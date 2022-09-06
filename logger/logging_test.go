@@ -1,4 +1,4 @@
-package logging_test
+package logger_test
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"cloud.google.com/go/logging"
-	blueLogging "github.com/blue-health/blue-go-toolbox/logging"
+	blueLogging "github.com/blue-health/blue-go-toolbox/logger"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -77,7 +77,7 @@ func TestLogResponse(t *testing.T) {
 				return e.Payload == c.message && e.Severity == c.severity
 			}))
 
-			logger := blueLogging.Get(mockCloudLogger)
+			logger := blueLogging.New(mockCloudLogger)
 
 			logger.LogResponse(r, w, c.statusCode, c.message)
 
@@ -127,7 +127,7 @@ func TestLogServiceError(t *testing.T) {
 				return e.Severity == c.severity
 			}))
 
-			logger := blueLogging.Get(mockCloudLogger)
+			logger := blueLogging.New(mockCloudLogger)
 
 			logger.LogServiceError(r, w, c.err)
 
