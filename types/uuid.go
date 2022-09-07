@@ -14,7 +14,7 @@ type UUID struct {
 	Valid bool
 }
 
-func UUIDFromUUID(id uuid.UUID) UUID {
+func FromUUID(id uuid.UUID) UUID {
 	return UUID{UUID: id, Valid: true}
 }
 
