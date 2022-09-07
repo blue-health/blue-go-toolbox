@@ -7,7 +7,7 @@ import (
 
 type UUID pgtype.UUID
 
-func FromUUID(u uuid.UUID) UUID {
+func UUIDFromUUID(u uuid.UUID) UUID {
 	return UUID{
 		Bytes:  u,
 		Status: pgtype.Present,
@@ -20,4 +20,8 @@ func (u UUID) ToUUID() uuid.UUID {
 	}
 
 	return uuid.Nil
+}
+
+func (u UUID) Valid() bool {
+	return u.Status == pgtype.Present
 }
