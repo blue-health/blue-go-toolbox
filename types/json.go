@@ -17,7 +17,7 @@ var (
 	ErrJSONInvalid = errors.New("json_invalid")
 )
 
-func FromJSON(j []byte) JSON {
+func JSONFrom(j []byte) JSON {
 	return JSON{JSON: j, Valid: true}
 }
 
