@@ -1,45 +1,118 @@
 package types
 
 import (
+	"bytes"
+	"database/sql/driver"
+	"encoding/json"
 	"errors"
-
-	"github.com/jackc/pgtype"
 )
 
-type JSON pgtype.JSON
-
-var ErrJSONInvalid = errors.New("json_invalid")
-
-func JSONFromBytes(b []byte) JSON {
-	return JSON{
-		Bytes:  b,
-		Status: pgtype.Present,
-	}
+type JSON struct {
+	JSON  json.RawMessage
+	Valid bool
 }
 
-func (j JSON) ToBytes() []byte {
-	if j.Status == pgtype.Present {
-		return j.Bytes
-	}
+var (
+	nullBytes      = []byte("null")
+	ErrJSONInvalid = errors.New("json_invalid")
+)
 
-	return []byte{}
+func JSONFromBytes(j []byte) JSON {
+	return JSON{JSON: j, Valid: true}
 }
 
-func (j JSON) Valid() bool {
-	return j.Status == pgtype.Present
+func (j JSON) Value() (driver.Value, error) {
+	if !j.Valid {
+		return nil, nil
+	}
+
+	bs, err := json.Marshal(j.JSON)
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
+}
+
+func (j *JSON) Scan(src interface{}) error {
+	var source []byte
+
+	switch t := src.(type) {
+	case string:
+		if t == "" {
+			source = nullBytes
+		} else {
+			source = []byte(t)
+		}
+	case []byte:
+		if len(t) == 0 {
+			source = nullBytes
+		} else {
+			source = t
+		}
+	case nil:
+		source = nullBytes
+	default:
+		return ErrJSONInvalid
+	}
+
+	if bytes.Equal(source, nullBytes) {
+		*j = JSON{JSON: nullBytes, Valid: false}
+	} else {
+		var bs json.RawMessage
+		if err := json.Unmarshal(source, &bs); err != nil {
+			return err
+		}
+
+		*j = JSON{JSON: bs, Valid: true}
+	}
+
+	return nil
+}
+
+func (j JSON) MarshalJSON() ([]byte, error) {
+	if !j.Valid {
+		return nullBytes, nil
+	}
+
+	bs, err := json.Marshal(j.JSON)
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
+}
+
+func (j *JSON) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 || bytes.Equal(data, nullBytes) {
+		*j = JSON{JSON: nullBytes, Valid: false}
+	} else {
+		var bs json.RawMessage
+		if err := json.Unmarshal(data, &bs); err != nil {
+			return err
+		}
+
+		*j = JSON{JSON: bs, Valid: true}
+	}
+
+	return nil
+}
+
+func (j *JSON) Unmarshal(v interface{}) error {
+	return j.Scan(v)
 }
 
 func (j JSON) MarshalYAML() (interface{}, error) {
-	switch j.Status {
-	case pgtype.Present:
-		return string(j.Bytes), nil
-	case pgtype.Null:
-		return "", nil
-	case pgtype.Undefined:
-		return nil, ErrJSONInvalid
+	if !j.Valid {
+		return string(nullBytes), nil
 	}
 
-	return nil, ErrJSONInvalid
+	bs, err := json.Marshal(j.JSON)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(bs), nil
 }
 
 func (j *JSON) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -48,15 +121,17 @@ func (j *JSON) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	if s == "" || s == "null" {
-		*j = JSON{
-			Status: pgtype.Null,
-		}
+	source := []byte(s)
+
+	if len(source) == 0 || bytes.Equal(source, nullBytes) {
+		*j = JSON{JSON: nullBytes, Valid: false}
 	} else {
-		*j = JSON{
-			Bytes:  []byte(s),
-			Status: pgtype.Present,
+		var bs json.RawMessage
+		if err := json.Unmarshal(source, &bs); err != nil {
+			return err
 		}
+
+		*j = JSON{JSON: bs, Valid: true}
 	}
 
 	return nil

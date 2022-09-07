@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/blue-health/blue-go-toolbox/types"
-	"github.com/jackc/pgtype"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
@@ -23,29 +22,20 @@ func TestJSONMarshalYAML(t *testing.T) {
 		{
 			name: "normal json",
 			in: types.JSON{
-				Bytes:  []byte(`{"hello": "world}`),
-				Status: pgtype.Present,
+				JSON:  []byte(`{"hello": "world"}`),
+				Valid: true,
 			},
-			out: `yamlJSON: '{"hello": "world}'
+			out: `yamlJSON: '{"hello":"world"}'
 `,
 		},
 		{
 			name: "null json",
 			in: types.JSON{
-				Bytes:  []byte(`{"hello": "world}`),
-				Status: pgtype.Null,
+				JSON:  []byte(`{"hello": "world"}`),
+				Valid: false,
 			},
-			out: `yamlJSON: ""
+			out: `yamlJSON: "null"
 `,
-		},
-		{
-			name: "undefined json",
-			in: types.JSON{
-				Bytes:  []byte(`{"hello": "world}`),
-				Status: pgtype.Undefined,
-			},
-			out: `yamlJSON: '{"hello": "world}'`,
-			err: types.ErrJSONInvalid,
 		},
 	}
 
@@ -78,18 +68,18 @@ func TestJSONUnmarshalYAML(t *testing.T) {
 	}{
 		{
 			name: "normal json",
-			in:   `yamlJSON: '{"hello": "world}'`,
+			in:   `yamlJSON: '{"hello": "world"}'`,
 			out: types.JSON{
-				Bytes:  []byte(`{"hello": "world}`),
-				Status: pgtype.Present,
+				JSON:  []byte(`{"hello": "world"}`),
+				Valid: true,
 			},
 		},
 		{
 			name: "null json",
 			in:   `yamlJSON: ''`,
 			out: types.JSON{
-				Bytes:  []byte(`{"hello": "world}`),
-				Status: pgtype.Null,
+				JSON:  []byte(`{"hello": "world"}`),
+				Valid: false,
 			},
 		},
 		{
@@ -97,8 +87,8 @@ func TestJSONUnmarshalYAML(t *testing.T) {
 			in: `yamlJSON: | 
                 {"hello": "world"}`,
 			out: types.JSON{
-				Bytes:  []byte(`{"hello": "world"}`),
-				Status: pgtype.Present,
+				JSON:  []byte(`{"hello": "world"}`),
+				Valid: false,
 			},
 		},
 	}
@@ -110,7 +100,7 @@ func TestJSONUnmarshalYAML(t *testing.T) {
 			err := yaml.Unmarshal([]byte(c.in), &ts)
 			require.Nil(t, err)
 
-			if c.out.Valid() {
+			if c.out.Valid {
 				require.Equal(t, c.out, ts.JS)
 			}
 		})
