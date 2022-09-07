@@ -1,4 +1,4 @@
-package logging
+package logger
 
 import (
 	"encoding/json"
@@ -11,16 +11,16 @@ import (
 )
 
 type (
-	Logger struct{ l CloudLogger }
+	Logger struct{ l Cloud }
 
-	LogFields map[string]interface{}
+	Fields map[string]interface{}
 
-	CloudLogger interface {
+	Cloud interface {
 		Log(e logging.Entry)
 	}
 )
 
-func Get(l CloudLogger) Logger { return Logger{l: l} }
+func New(l Cloud) Logger { return Logger{l: l} }
 
 func (l Logger) LogResponse(w http.ResponseWriter, r *http.Request, s int) {
 	l.LogResponseMessage(w, r, s, http.StatusText(s))
@@ -122,7 +122,7 @@ func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error)
 	})
 }
 
-func (l Logger) Log(v logging.Severity, m string, f LogFields) {
+func (l Logger) Log(v logging.Severity, m string, f Fields) {
 	s := make(map[string]string, len(f))
 	for k, v := range f {
 		s[k] = fmt.Sprintf("%+v", v)
