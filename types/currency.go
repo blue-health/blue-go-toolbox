@@ -13,21 +13,10 @@ type Currency struct{ currency.Amount }
 
 var ErrCurrencyInvalid = errors.New("currency_invalid")
 
-func Rounded(c currency.Amount) Currency {
+func CurrencyFrom(a currency.Amount) Currency { return Currency{Amount: a} }
+
+func CurrencyRounded(c currency.Amount) Currency {
 	return Currency{Amount: c.RoundTo(2, currency.RoundHalfUp)}
-}
-
-func Abs(c currency.Amount) (Currency, error) {
-	if c.IsNegative() {
-		a, err := c.Mul("-1")
-		if err != nil {
-			return Currency{}, fmt.Errorf("failed to calculate absolute value: %w", err)
-		}
-
-		return Currency{Amount: a}, nil
-	}
-
-	return Currency{Amount: c}, nil
 }
 
 func (c Currency) Value() (driver.Value, error) {
