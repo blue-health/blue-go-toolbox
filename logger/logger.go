@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"cloud.google.com/go/logging"
 	"github.com/blue-health/blue-go-toolbox/authn"
@@ -81,7 +82,7 @@ func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error)
 		}
 
 		for i := range g.Details {
-			f = append(f, apiField{Name: toSnakeCase(g.Details[i].StructNamespace())})
+			f = append(f, apiField{Name: formatField(g.Details[i].StructNamespace())})
 		}
 
 	case validator.ValidationErrors:
@@ -90,7 +91,7 @@ func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error)
 		m = "bad_request"
 
 		for i := range g {
-			f = append(f, apiField{Name: toSnakeCase(g[i].StructNamespace())})
+			f = append(f, apiField{Name: formatField(g[i].StructNamespace())})
 		}
 	}
 
@@ -133,6 +134,15 @@ func (l Logger) Log(v logging.Severity, m string, f Fields) {
 		Payload:  m,
 		Severity: v,
 	})
+}
+
+func formatField(f string) string {
+	p := strings.Split(f, ".")
+	for i := range p {
+		p[i] = toSnakeCase(p[i])
+	}
+
+	return strings.Join(p, ".")
 }
 
 func getLabels(r *http.Request) map[string]string {
