@@ -58,24 +58,24 @@ func (l Logger) LogResponseMessage(w http.ResponseWriter, r *http.Request, s int
 func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error) {
 	var (
 		u = unwrap(e)
-		m = e.Error()
+		m = u.Error()
 		s = http.StatusInternalServerError
 		f []apiField
 	)
 
-	if v, ok := errorMap[e.Error()]; ok {
+	if v, ok := errorMap[u]; ok {
 		s = v
 	}
 
 	switch g := u.(type) {
-	case ValidationError:
+	case *ValidationError:
 		e = g
 
 		if g.Root != nil {
 			n := unwrap(g.Root)
 			m = n.Error()
 
-			if v, ok := errorMap[n.Error()]; ok {
+			if v, ok := errorMap[n]; ok {
 				s = v
 			}
 		}
