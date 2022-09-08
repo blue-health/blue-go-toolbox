@@ -16,18 +16,18 @@ func TestSum(t *testing.T) {
 	}{
 		{
 			name: "equal sets no change",
-			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			c:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			a:    sets.From(1, 2, 3),
+			b:    sets.From(1, 2, 3),
+			c:    sets.From(1, 2, 3),
 		},
 		{
 			name: "different sets",
-			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:    sets.Set[int]{4: struct{}{}, 5: struct{}{}, 6: struct{}{}},
-			c: sets.Set[int]{
-				1: struct{}{}, 2: struct{}{}, 3: struct{}{},
-				4: struct{}{}, 5: struct{}{}, 6: struct{}{},
-			},
+			a:    sets.From(1, 2, 3),
+			b:    sets.From(4, 5, 6),
+			c: sets.From(
+				1, 2, 3,
+				4, 5, 6,
+			),
 		},
 	}
 
@@ -49,15 +49,15 @@ func TestUnion(t *testing.T) {
 	}{
 		{
 			name: "equal sets no change",
-			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			c:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			a:    sets.From(1, 2, 3),
+			b:    sets.From(1, 2, 3),
+			c:    sets.From(1, 2, 3),
 		},
 		{
 			name: "different sets only one common",
-			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:    sets.Set[int]{1: struct{}{}, 5: struct{}{}, 6: struct{}{}},
-			c:    sets.Set[int]{1: struct{}{}},
+			a:    sets.From(1, 2, 3),
+			b:    sets.From(1, 5, 6),
+			c:    sets.From(1),
 		},
 		{
 			name: "different sets two common",
@@ -91,20 +91,20 @@ func TestEqual(t *testing.T) {
 	}{
 		{
 			name:  "equal sets",
-			a:     sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:     sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+			a:     sets.From(1, 2, 3),
+			b:     sets.From(1, 2, 3),
 			equal: true,
 		},
 		{
 			name:  "different sets",
-			a:     sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:     sets.Set[int]{4: struct{}{}, 5: struct{}{}, 6: struct{}{}},
+			a:     sets.From(1, 2, 3),
+			b:     sets.From(4, 5, 6),
 			equal: false,
 		},
 		{
 			name:  "different order sets",
-			a:     sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:     sets.Set[int]{3: struct{}{}, 1: struct{}{}, 2: struct{}{}},
+			a:     sets.From(1, 2, 3),
+			b:     sets.From(3, 2, 1),
 			equal: true,
 		},
 	}
