@@ -136,3 +136,29 @@ func (j *JSON) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	return nil
 }
+
+func RemoveJSONKey(doc JSON, key string) JSON {
+	if !doc.Valid {
+		return doc
+	}
+
+	var obj map[string]JSON
+	if err := json.Unmarshal(doc.JSON, &obj); err != nil {
+		return doc
+	}
+
+	for k, v := range obj {
+		if k == key {
+			delete(obj, k)
+		} else {
+			obj[k] = RemoveJSONKey(v, key)
+		}
+	}
+
+	o, err := json.Marshal(obj)
+	if err != nil {
+		return doc
+	}
+
+	return JSONFrom(o)
+}

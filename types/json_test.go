@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/blue-health/blue-go-toolbox/types"
@@ -104,5 +105,42 @@ func TestJSONUnmarshalYAML(t *testing.T) {
 				require.Equal(t, c.out, ts.JS)
 			}
 		})
+	}
+}
+
+func TestRemoveJSONKey(t *testing.T) {
+	cases := []struct {
+		old types.JSON
+		new types.JSON
+		key string
+	}{
+		{
+			old: types.JSON{},
+			new: types.JSON{},
+			key: "none",
+		},
+		{
+			old: types.JSONFrom([]byte(`{"some":"object"}`)),
+			new: types.JSONFrom([]byte(`{"some":"object"}`)),
+			key: "none",
+		},
+		{
+			old: types.JSONFrom([]byte(`{"some":"object"}`)),
+			new: types.JSONFrom([]byte(`{}`)),
+			key: "some",
+		},
+		{
+			old: types.JSONFrom([]byte(`{"some":{"nested":"object"}}`)),
+			new: types.JSONFrom([]byte(`{"some":{}}`)),
+			key: "nested",
+		},
+	}
+
+	for i := range cases {
+		n := types.RemoveJSONKey(cases[i].old, cases[i].key)
+
+		if !bytes.Equal(cases[i].new.JSON, n.JSON) {
+			t.Fatalf("JSON objects %s and %s don't match", string(cases[i].old.JSON), string(n.JSON))
+		}
 	}
 }
