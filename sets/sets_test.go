@@ -61,14 +61,14 @@ func TestUnion(t *testing.T) {
 		},
 		{
 			name: "different sets two common",
-			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 6: struct{}{}},
-			c:    sets.Set[int]{1: struct{}{}, 2: struct{}{}},
+			a:    sets.From(1, 2, 3),
+			b:    sets.From(1, 2, 6),
+			c:    sets.From(1, 2),
 		},
 		{
 			name: "different sets nothing common",
-			a:    sets.Set[int]{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			b:    sets.Set[int]{4: struct{}{}, 5: struct{}{}, 6: struct{}{}},
+			a:    sets.From(1, 2, 3),
+			b:    sets.From(4, 5, 6),
 			c:    sets.Set[int]{},
 		},
 	}
