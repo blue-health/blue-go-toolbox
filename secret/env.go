@@ -9,11 +9,11 @@ import (
 
 type EnvSource struct{}
 
-func NewEnvSource() *EnvSource { return &EnvSource{} }
+var _ Source = (*EnvSource)(nil)
 
 var ErrSecretNotFound = errors.New("secret_not_found")
 
-var _ Source = (*EnvSource)(nil)
+func NewEnvSource() *EnvSource { return &EnvSource{} }
 
 func (s *EnvSource) Get(_ context.Context, name string) (Secret, error) {
 	if v := os.Getenv(name); v != "" {
@@ -27,3 +27,5 @@ func (s *EnvSource) Get(_ context.Context, name string) (Secret, error) {
 
 	return nil, ErrSecretNotFound
 }
+
+func (s *EnvSource) Close() error { return nil }

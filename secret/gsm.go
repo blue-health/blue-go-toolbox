@@ -25,11 +25,11 @@ func NewGoogleSecretManager(ctx context.Context, projectID string) (*GoogleSecre
 }
 
 func (m *GoogleSecretManager) Get(ctx context.Context, name string) (Secret, error) {
-	accessRequest := &secretmanagerpb.AccessSecretVersionRequest{
+	accessRequest := secretmanagerpb.AccessSecretVersionRequest{
 		Name: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", m.projectID, name),
 	}
 
-	r, err := m.client.AccessSecretVersion(ctx, accessRequest)
+	r, err := m.client.AccessSecretVersion(ctx, &accessRequest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to access secret: %w", err)
 	}

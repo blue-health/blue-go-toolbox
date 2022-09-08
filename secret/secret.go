@@ -7,5 +7,6 @@ type (
 
 	Source interface {
 		Get(context.Context, string) (Secret, error)
+		Close() error
 	}
 )
