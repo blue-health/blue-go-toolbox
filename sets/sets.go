@@ -35,6 +35,30 @@ func Union[T comparable](i ...Set[T]) Set[T] {
 	return s
 }
 
+func Equal[T comparable](i ...Set[T]) bool {
+	for _, a := range i {
+		for k := range a {
+			for _, b := range i {
+				if _, ok := b[k]; !ok {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
+}
+
+func From[T comparable](v ...T) Set[T] {
+	r := make(Set[T], len(v))
+
+	for i := range v {
+		r[v[i]] = struct{}{}
+	}
+
+	return r
+}
+
 func FromSlice[T comparable](s []T) Set[T] {
 	r := make(Set[T], len(s))
 
@@ -75,18 +99,4 @@ func min[T comparable](i ...Set[T]) int {
 	}
 
 	return m
-}
-
-func Equal[T comparable](i ...Set[T]) bool {
-	for _, a := range i {
-		for k := range a {
-			for _, b := range i {
-				if _, ok := b[k]; !ok {
-					return false
-				}
-			}
-		}
-	}
-
-	return true
 }
