@@ -110,7 +110,7 @@ func TestLogServiceError(t *testing.T) {
 			name:       "validation error",
 			severity:   logging.Error,
 			statusCode: http.StatusInternalServerError,
-			err:        blueLogging.ValidationError{Root: errors.New("root error")},
+			err:        &blueLogging.ValidationError{Root: errors.New("root error")},
 			msg:        "root error",
 		},
 	}
