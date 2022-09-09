@@ -8,7 +8,7 @@ import (
 
 	"cloud.google.com/go/logging"
 	"github.com/blue-health/blue-go-toolbox/authn"
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 )
 
 type (
