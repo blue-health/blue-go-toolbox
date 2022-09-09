@@ -82,7 +82,7 @@ func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error)
 		}
 
 		for i := range g.Details {
-			f = append(f, apiField{Name: formatField(g.Details[i].StructNamespace())})
+			f = append(f, apiField{Name: prepareField(g, g.Details[i])})
 		}
 
 	case validator.ValidationErrors:
@@ -134,6 +134,23 @@ func (l Logger) Log(v logging.Severity, m string, f Fields) {
 		Payload:  m,
 		Severity: v,
 	})
+}
+
+func prepareField(e *ValidationError, f validator.FieldError) string {
+	v := formatField(f.StructNamespace())
+	if e.RewritesPrefix() {
+		v = rewriteField(v, e.Rewrite)
+	}
+
+	return v
+}
+
+func rewriteField(f string, rewrite [2]string) string {
+	if strings.HasPrefix(f, rewrite[0]) {
+		return rewrite[1] + strings.TrimPrefix(f, rewrite[0])
+	}
+
+	return f
 }
 
 func formatField(f string) string {

@@ -10,6 +10,7 @@ import (
 
 type ValidationError struct {
 	Root    error
+	Rewrite [2]string
 	Details validator.ValidationErrors
 }
 
@@ -51,6 +52,14 @@ func (e *ValidationError) Error() string {
 	}
 
 	return sb.String()
+}
+
+func (e *ValidationError) RewritePrefix(original, updated string) {
+	e.Rewrite = [2]string{original, updated}
+}
+
+func (e *ValidationError) RewritesPrefix() bool {
+	return e.Rewrite != [2]string{}
 }
 
 func unwrap(err error) error {
