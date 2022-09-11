@@ -164,7 +164,6 @@ func formatField(f string) string {
 
 func getLabels(r *http.Request) map[string]string {
 	m := make(map[string]string, 0)
-
 	if i, ok := authn.GetIdentityID(r.Context()); ok {
 		m["identity_id"] = i.String()
 	}

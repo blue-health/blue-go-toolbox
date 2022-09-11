@@ -7,13 +7,11 @@ type Period struct {
 }
 
 func StartOfDay(t time.Time) time.Time {
-	nt := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
-	return nt
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }
 
 func EndOfDay(t time.Time) time.Time {
-	nt := time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, time.UTC)
-	return nt
+	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, time.UTC)
 }
 
 func MonthOf(t time.Time) Period {
