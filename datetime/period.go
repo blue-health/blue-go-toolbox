@@ -7,25 +7,24 @@ type Period struct {
 	End   time.Time `json:"end" yaml:"end"`
 }
 
-const maxNsec = 999999999
-
 func NewPeriod(a, b time.Time) Period {
 	return Period{Begin: StartOfDay(a), End: EndOfDay(b)}
 }
 
 func StartOfDay(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 }
 
 func EndOfDay(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, maxNsec, time.UTC)
+	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, t.Location())
 }
 
 func MonthOf(t time.Time) Period {
 	var (
-		begin    = time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
-		finalDay = time.Date(t.Year(), t.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
-		end      = time.Date(t.Year(), t.Month(), finalDay, 23, 59, 59, maxNsec, time.UTC)
+		l     = t.Location()
+		begin = time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, l)
+		d     = begin.AddDate(0, 1, -1)
+		end   = time.Date(d.Year(), d.Month(), d.Day(), 23, 59, 59, 0, l)
 	)
 
 	return Period{Begin: begin, End: end}
