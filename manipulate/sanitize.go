@@ -24,8 +24,10 @@ const (
 )
 
 var (
-	spaceRegex = regexp.MustCompile(`\s+`)
-	nidRegex   = regexp.MustCompile(`^[A-Z]{3}\d{7}$`)
+	ugcPolicy    = bluemonday.UGCPolicy()
+	strictPolicy = bluemonday.StrictPolicy()
+	spaceRegex   = regexp.MustCompile(`\s+`)
+	nidRegex     = regexp.MustCompile(`^[A-Z]{3}\d{7}$`)
 )
 
 var ErrNIDInvalid = errors.New("nid_invalid")
@@ -35,9 +37,9 @@ func NewSanitizer(kind Kind) *Sanitizer {
 
 	switch kind {
 	case UGC:
-		policy = bluemonday.UGCPolicy()
+		policy = ugcPolicy
 	default:
-		policy = bluemonday.StrictPolicy()
+		policy = strictPolicy
 	}
 
 	return &Sanitizer{policy: policy}
