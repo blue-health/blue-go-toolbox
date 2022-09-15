@@ -51,15 +51,15 @@ func (p *Sanitizer) SanitizeNull(s *null.String) {
 	s.String = strings.TrimSpace(p.policy.Sanitize(s.String))
 }
 
-func (p *Sanitizer) SanitizeIBAN(s *null.String) {
+func SanitizeIBAN(s *null.String) {
 	s.String = spaceRegex.ReplaceAllString(strings.TrimSpace(strings.ToUpper(s.String)), "")
 }
 
-func (p *Sanitizer) SanitizeVAT(s *null.String) {
+func SanitizeVAT(s *null.String) {
 	s.String = spaceRegex.ReplaceAllString(strings.TrimSpace(strings.ToUpper(s.String)), "")
 }
 
-func (p *Sanitizer) SanitizeNID(s *string) error {
+func SanitizeNID(s *string) error {
 	*s = strings.TrimSpace(strings.ToUpper(*s))
 
 	if !nidRegex.MatchString(*s) {
