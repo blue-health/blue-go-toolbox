@@ -10,32 +10,56 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-var (
-	Sanitizer = bluemonday.StrictPolicy()
+type (
+	Sanitizer struct {
+		policy *bluemonday.Policy
+	}
 
+	Kind int
+)
+
+const (
+	Strict Kind = iota + 1
+	UGC
+)
+
+var (
 	spaceRegex = regexp.MustCompile(`\s+`)
 	nidRegex   = regexp.MustCompile(`^[A-Z]{3}\d{7}$`)
 )
 
 var ErrNIDInvalid = errors.New("nid_invalid")
 
-func Sanitize(s *string) {
-	*s = strings.TrimSpace(Sanitizer.Sanitize(*s))
+func NewSanitizer(kind Kind) *Sanitizer {
+	var policy *bluemonday.Policy
+
+	switch kind {
+	case UGC:
+		policy = bluemonday.UGCPolicy()
+	default:
+		policy = bluemonday.StrictPolicy()
+	}
+
+	return &Sanitizer{policy: policy}
 }
 
-func SanitizeNull(s *null.String) {
-	s.String = strings.TrimSpace(Sanitizer.Sanitize(s.String))
+func (p *Sanitizer) Sanitize(s *string) {
+	*s = strings.TrimSpace(p.policy.Sanitize(*s))
 }
 
-func SanitizeIBAN(s *null.String) {
+func (p *Sanitizer) SanitizeNull(s *null.String) {
+	s.String = strings.TrimSpace(p.policy.Sanitize(s.String))
+}
+
+func (p *Sanitizer) SanitizeIBAN(s *null.String) {
 	s.String = spaceRegex.ReplaceAllString(strings.TrimSpace(strings.ToUpper(s.String)), "")
 }
 
-func SanitizeVAT(s *null.String) {
+func (p *Sanitizer) SanitizeVAT(s *null.String) {
 	s.String = spaceRegex.ReplaceAllString(strings.TrimSpace(strings.ToUpper(s.String)), "")
 }
 
-func SanitizeNID(s *string) error {
+func (p *Sanitizer) SanitizeNID(s *string) error {
 	*s = strings.TrimSpace(strings.ToUpper(*s))
 
 	if !nidRegex.MatchString(*s) {
