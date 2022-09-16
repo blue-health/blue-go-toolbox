@@ -10,21 +10,47 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-var (
-	Sanitizer = bluemonday.StrictPolicy()
+type (
+	Sanitizer struct {
+		policy *bluemonday.Policy
+	}
 
-	spaceRegex = regexp.MustCompile(`\s+`)
-	nidRegex   = regexp.MustCompile(`^[A-Z]{3}\d{7}$`)
+	Kind int
+)
+
+const (
+	Strict Kind = iota + 1
+	UGC
+)
+
+var (
+	ugcPolicy    = bluemonday.UGCPolicy()
+	strictPolicy = bluemonday.StrictPolicy()
+	spaceRegex   = regexp.MustCompile(`\s+`)
+	nidRegex     = regexp.MustCompile(`^[A-Z]{3}\d{7}$`)
 )
 
 var ErrNIDInvalid = errors.New("nid_invalid")
 
-func Sanitize(s *string) {
-	*s = strings.TrimSpace(Sanitizer.Sanitize(*s))
+func NewSanitizer(kind Kind) *Sanitizer {
+	var policy *bluemonday.Policy
+
+	switch kind {
+	case UGC:
+		policy = ugcPolicy
+	default:
+		policy = strictPolicy
+	}
+
+	return &Sanitizer{policy: policy}
 }
 
-func SanitizeNull(s *null.String) {
-	s.String = strings.TrimSpace(Sanitizer.Sanitize(s.String))
+func (p *Sanitizer) Sanitize(s *string) {
+	*s = strings.TrimSpace(p.policy.Sanitize(*s))
+}
+
+func (p *Sanitizer) SanitizeNull(s *null.String) {
+	s.String = strings.TrimSpace(p.policy.Sanitize(s.String))
 }
 
 func SanitizeIBAN(s *null.String) {
