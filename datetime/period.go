@@ -13,11 +13,14 @@ type Period struct {
 var ErrBeforeAfterEnd = errors.New("before_cannot_be_after_end")
 
 func NewPeriod(a, b time.Time) (Period, error) {
-	if b.After(a) {
+	a = StartOfDay(a)
+	b = EndOfDay(b)
+
+	if a.After(b) {
 		return Period{}, ErrBeforeAfterEnd
 	}
 
-	return Period{Begin: StartOfDay(a), End: EndOfDay(b)}, nil
+	return Period{Begin: a, End: b}, nil
 }
 
 func StartOfDay(t time.Time) time.Time {
