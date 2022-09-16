@@ -83,3 +83,150 @@ func TestPreviousMonthOf(t *testing.T) {
 		})
 	}
 }
+
+func TestWithin(t *testing.T) {
+	testCases := []struct {
+		name       string
+		sub, super datetime.Period
+		ret        bool
+	}{
+		{
+			name: "subset is zero to infinity",
+			sub: datetime.Period{
+				Begin: time.Time{},
+				End:   time.Now().Add(10e15),
+			},
+			super: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			ret: false,
+		},
+		{
+			name: "subset is zero to zero",
+			sub: datetime.Period{
+				Begin: time.Time{},
+				End:   time.Time{},
+			},
+			super: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			ret: false,
+		},
+		{
+			name: "subset is infinity to infinity",
+			sub: datetime.Period{
+				Begin: time.Now().Add(10e15),
+				End:   time.Now().Add(10e15),
+			},
+			super: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			ret: false,
+		},
+		{
+			name: "both zero",
+			sub: datetime.Period{
+				Begin: time.Time{},
+				End:   time.Time{},
+			},
+			super: datetime.Period{
+				Begin: time.Time{},
+				End:   time.Time{},
+			},
+			ret: true,
+		},
+		{
+			name: "both infinity",
+			sub: datetime.Period{
+				Begin: time.Time{}.Add(10e15),
+				End:   time.Time{}.Add(10e15),
+			},
+			super: datetime.Period{
+				Begin: time.Time{}.Add(10e15),
+				End:   time.Time{}.Add(10e15),
+			},
+			ret: true,
+		},
+		{
+			name: "superset is zero to infinity",
+			sub: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			super: datetime.Period{
+				Begin: time.Time{},
+				End:   time.Now().Add(10e17),
+			},
+			ret: true,
+		},
+		{
+			name: "superset is zero to zero",
+			sub: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			super: datetime.Period{
+				Begin: time.Time{},
+				End:   time.Time{},
+			},
+			ret: false,
+		},
+		{
+			name: "superset is infinity to infinity",
+			sub: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			super: datetime.Period{
+				Begin: time.Now().Add(10e15),
+				End:   time.Now().Add(10e15),
+			},
+			ret: false,
+		},
+		{
+			name: "subset is backwards infinity to zero",
+			sub: datetime.Period{
+				Begin: time.Now().Add(10e15),
+				End:   time.Time{},
+			},
+			super: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			ret: true,
+		},
+		{
+			name: "subset is normal subset",
+			sub: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			super: datetime.Period{
+				Begin: time.Now().Add(-time.Hour),
+				End:   time.Now().Add(time.Hour),
+			},
+			ret: true,
+		},
+		{
+			name: "subset is normal subset",
+			sub: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			super: datetime.Period{
+				Begin: time.Now().Add(-time.Hour),
+				End:   time.Now().Add(time.Hour),
+			},
+			ret: true,
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(c.name, func(t *testing.T) {
+			require.Equal(t, c.ret, c.sub.Within(c.super))
+		})
+	}
+}
