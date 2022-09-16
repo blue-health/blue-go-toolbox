@@ -3,7 +3,7 @@ package datetime
 import "time"
 
 type Period struct {
-	Begin time.Time `json:"start" yaml:"start"`
+	Begin time.Time `json:"begin" yaml:"begin"`
 	End   time.Time `json:"end" yaml:"end"`
 }
 
