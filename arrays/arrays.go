@@ -1,9 +1,11 @@
 package arrays
 
-func Contains[T comparable](s []T, e T) bool {
+func Contains[T comparable](s []T, e ...T) bool {
 	for _, a := range s {
-		if a == e {
-			return true
+		for _, b := range e {
+			if a == b {
+				return true
+			}
 		}
 	}
 
@@ -12,7 +14,16 @@ func Contains[T comparable](s []T, e T) bool {
 
 func Subset[T comparable](s []T, e ...T) bool {
 	for _, a := range e {
-		if !Contains(s, a) {
+		var c bool
+
+		for _, b := range s {
+			if a == b {
+				c = true
+				break
+			}
+		}
+
+		if !c {
 			return false
 		}
 	}

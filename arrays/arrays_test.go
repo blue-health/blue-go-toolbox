@@ -1,6 +1,7 @@
 package arrays_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/blue-health/blue-go-toolbox/arrays"
@@ -95,9 +96,11 @@ func TestSubset(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if arrays.Subset(c.super, c.sub...) != c.result {
-			t.Fatalf("Subset returned false bool. Superset: %v, Subset: %s, Expected: %t", c.super, c.sub, c.result)
-		}
+		t.Run(strings.Join(c.super, ",")+":"+strings.Join(c.sub, ","), func(t *testing.T) {
+			if arrays.Subset(c.super, c.sub...) != c.result {
+				t.Fatalf("Subset returned false bool. Superset: %v, Subset: %s, Expected: %t", c.super, c.sub, c.result)
+			}
+		})
 	}
 }
 
