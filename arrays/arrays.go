@@ -1,6 +1,6 @@
 package arrays
 
-func Contains[T comparable](s []T, e ...T) bool {
+func ContainsAny[T comparable](s []T, e ...T) bool {
 	for _, a := range s {
 		for _, b := range e {
 			if a == b {
@@ -12,7 +12,7 @@ func Contains[T comparable](s []T, e ...T) bool {
 	return false
 }
 
-func Subset[T comparable](s []T, e ...T) bool {
+func ContainsAll[T comparable](s []T, e ...T) bool {
 	for _, a := range e {
 		var c bool
 
@@ -31,23 +31,19 @@ func Subset[T comparable](s []T, e ...T) bool {
 	return true
 }
 
-func Intersects[T comparable](s []T, e ...T) bool {
-	for _, a := range e {
-		if Contains(s, a) {
-			return true
+func Remove[T comparable](s []T, k ...T) []T {
+	c := make([]T, 0, len(s))
+
+outer:
+	for _, v := range s {
+		for _, e := range k {
+			if v == e {
+				continue outer
+			}
 		}
+
+		c = append(c, v)
 	}
 
-	return false
-}
-
-func Remove[T comparable](s []T, k T) []T {
-	for i, v := range s {
-		if v == k {
-			s = append(s[:i], s[i+1:]...)
-			break
-		}
-	}
-
-	return s
+	return c
 }

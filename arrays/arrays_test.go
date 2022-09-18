@@ -5,9 +5,10 @@ import (
 	"testing"
 
 	"github.com/blue-health/blue-go-toolbox/arrays"
+	"github.com/stretchr/testify/require"
 )
 
-func TestContains(t *testing.T) {
+func TestContainsAny(t *testing.T) {
 	cases := []struct {
 		hay      []string
 		needle   string
@@ -36,13 +37,15 @@ func TestContains(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if arrays.Contains(c.hay, c.needle) != c.contains {
-			t.Fatalf("Contains returned false bool. Haystack: %v, Needle: %s, Expected: %t", c.hay, c.needle, c.contains)
-		}
+		t.Run(strings.Join(c.hay, ",")+":"+c.needle, func(t *testing.T) {
+			if arrays.ContainsAny(c.hay, c.needle) != c.contains {
+				t.Fatalf("Contains returned false bool. Haystack: %v, Needle: %s, Expected: %t", c.hay, c.needle, c.contains)
+			}
+		})
 	}
 }
 
-func TestSubset(t *testing.T) {
+func TestContainsAll(t *testing.T) {
 	cases := []struct {
 		super  []string
 		sub    []string
@@ -97,69 +100,64 @@ func TestSubset(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(strings.Join(c.super, ",")+":"+strings.Join(c.sub, ","), func(t *testing.T) {
-			if arrays.Subset(c.super, c.sub...) != c.result {
+			if arrays.ContainsAll(c.super, c.sub...) != c.result {
 				t.Fatalf("Subset returned false bool. Superset: %v, Subset: %s, Expected: %t", c.super, c.sub, c.result)
 			}
 		})
 	}
 }
 
-func TestIntersects(t *testing.T) {
+func TestRemove(t *testing.T) {
 	cases := []struct {
-		one        []string
-		two        []string
-		intersects bool
+		in  []string
+		re  []string
+		out []string
 	}{
 		{
-			one:        []string{},
-			two:        []string{},
-			intersects: false,
+			in:  []string{},
+			re:  []string{},
+			out: []string{},
 		},
 		{
-			one:        []string{},
-			two:        []string{""},
-			intersects: false,
+			in:  []string{},
+			re:  []string{""},
+			out: []string{},
 		},
 		{
-			one:        []string{""},
-			two:        []string{""},
-			intersects: true,
+			in:  []string{""},
+			re:  []string{""},
+			out: []string{},
 		},
 		{
-			one:        []string{"hello", "world"},
-			two:        []string{"wo"},
-			intersects: false,
+			in:  []string{""},
+			re:  []string{},
+			out: []string{""},
 		},
 		{
-			one:        []string{"hello", "world"},
-			two:        []string{"world"},
-			intersects: true,
+			in:  []string{"hello", "world"},
+			re:  []string{"wo"},
+			out: []string{"hello", "world"},
 		},
 		{
-			one:        []string{"hello", "world"},
-			two:        []string{"world", "hi"},
-			intersects: true,
+			in:  []string{"hello", "world"},
+			re:  []string{"world"},
+			out: []string{"hello"},
 		},
 		{
-			one:        []string{"hello", "world"},
-			two:        []string{"hello", "world"},
-			intersects: true,
+			in:  []string{"hello", "world"},
+			re:  []string{"hello"},
+			out: []string{"world"},
 		},
 		{
-			one:        []string{"hello", "world", "there"},
-			two:        []string{"hello", "there"},
-			intersects: true,
-		},
-		{
-			one:        []string{"hello", "world", "there"},
-			two:        []string{"hello", "world", "there", "earth"},
-			intersects: true,
+			in:  []string{"hello", "world"},
+			re:  []string{"world", "hello"},
+			out: []string{},
 		},
 	}
 
 	for _, c := range cases {
-		if arrays.Intersects(c.one, c.two...) != c.intersects {
-			t.Fatalf("Intersects returned false bool. First: %v, Second: %s, Expected: %t", c.one, c.two, c.intersects)
-		}
+		t.Run(strings.Join(c.in, ",")+":"+strings.Join(c.out, ","), func(t *testing.T) {
+			require.ElementsMatch(t, c.out, arrays.Remove(c.in, c.re...))
+		})
 	}
 }
