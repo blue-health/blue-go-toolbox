@@ -1,14 +1,26 @@
 package datetime
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type Period struct {
 	Begin time.Time `json:"begin" yaml:"begin"`
 	End   time.Time `json:"end" yaml:"end"`
 }
 
-func NewPeriod(a, b time.Time) Period {
-	return Period{Begin: StartOfDay(a), End: EndOfDay(b)}
+var ErrBeforeAfterEnd = errors.New("before_cannot_be_after_end")
+
+func NewPeriod(a, b time.Time) (Period, error) {
+	a = StartOfDay(a)
+	b = EndOfDay(b)
+
+	if a.After(b) {
+		return Period{}, ErrBeforeAfterEnd
+	}
+
+	return Period{Begin: a, End: b}, nil
 }
 
 func StartOfDay(t time.Time) time.Time {
