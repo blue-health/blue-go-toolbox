@@ -42,13 +42,8 @@ func (c *InMemory) Get(_ context.Context, key string) ([]byte, error) {
 	return v, nil
 }
 
-func (c *InMemory) GetValue(_ context.Context, key string) (any, error) {
-	i, f := c.cache.Get(key)
-	if !f {
-		return nil, nil
-	}
-
-	return i, nil
+func (c *InMemory) GetValue(_ context.Context, key string) (any, bool) {
+	return c.cache.Get(key)
 }
 
 func (c *InMemory) Set(_ context.Context, key string, value []byte, expiry time.Duration) error {
