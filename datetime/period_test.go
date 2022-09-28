@@ -230,3 +230,106 @@ func TestWithin(t *testing.T) {
 		})
 	}
 }
+
+func TestContainsDate(t *testing.T) {
+	testCases := []struct {
+		name string
+		p    datetime.Period
+		t    time.Time
+		ret  bool
+	}{
+		{
+			name: "zero period and zero time",
+			p:    datetime.Period{},
+			ret:  true,
+		},
+		{
+			name: "now period and zero time",
+			p: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now(),
+			},
+			ret: false,
+		},
+		{
+			name: "zero period and now time",
+			p:    datetime.Period{},
+			t:    time.Now(),
+			ret:  false,
+		},
+		{
+			name: "zero to infinite period and now time",
+			p: datetime.Period{
+				End: time.Now().Add(10000 * time.Minute),
+			},
+			t:   time.Now(),
+			ret: true,
+		},
+		{
+			name: "zero to infinite period and zero time",
+			p: datetime.Period{
+				End: time.Now().Add(10000 * time.Minute),
+			},
+			ret: true,
+		},
+		{
+			name: "zero to infinite period and now time",
+			p: datetime.Period{
+				End: time.Now().Add(10000 * time.Minute),
+			},
+			t:   time.Now(),
+			ret: true,
+		},
+		{
+			name: "1 hour period and infinite time",
+			p: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now().Add(time.Hour),
+			},
+			t:   time.Now().Add(10000 * time.Minute),
+			ret: false,
+		},
+		{
+			name: "1 hour period and now time",
+			p: datetime.Period{
+				Begin: time.Now(),
+				End:   time.Now().Add(time.Hour),
+			},
+			t:   time.Now(),
+			ret: true,
+		},
+		{
+			name: "2 hour period and infinite time",
+			p: datetime.Period{
+				Begin: time.Now().Add(-time.Hour),
+				End:   time.Now().Add(time.Hour),
+			},
+			t:   time.Now().Add(10000 * time.Minute),
+			ret: false,
+		},
+		{
+			name: "2 hour period and now time",
+			p: datetime.Period{
+				Begin: time.Now().Add(-time.Hour),
+				End:   time.Now().Add(time.Hour),
+			},
+			t:   time.Now(),
+			ret: true,
+		},
+		{
+			name: "begin in 1 hour period and now time",
+			p: datetime.Period{
+				Begin: time.Now().Add(time.Hour),
+				End:   time.Now().Add(time.Hour),
+			},
+			t:   time.Now(),
+			ret: false,
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(c.name, func(t *testing.T) {
+			require.Equal(t, c.ret, c.p.Contains(c.t))
+		})
+	}
+}
