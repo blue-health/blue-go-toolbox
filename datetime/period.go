@@ -50,3 +50,16 @@ func (p Period) Within(o Period) bool {
 	return (p.Begin.Equal(o.Begin) || p.Begin.After(o.Begin)) &&
 		(p.End.Equal(o.End) || p.End.Before(o.End))
 }
+
+func (p Period) DateWithin(t time.Time) bool {
+	return (p.Begin.Equal(t) || p.Begin.Before(t)) &&
+		(p.End.Equal(t) || p.End.After(t))
+}
+
+func MustPeriod(p Period, err error) Period {
+	if err != nil {
+		panic(err)
+	}
+
+	return p
+}
