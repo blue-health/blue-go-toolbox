@@ -299,7 +299,7 @@ func TestContainsDate(t *testing.T) {
 			ret: true,
 		},
 		{
-			name: "begin in 1 hour period and infinite time",
+			name: "2 hour period and infinite time",
 			p: datetime.Period{
 				Begin: time.Now().Add(-time.Hour),
 				End:   time.Now().Add(time.Hour),
@@ -308,13 +308,22 @@ func TestContainsDate(t *testing.T) {
 			ret: false,
 		},
 		{
-			name: "begin in 1 hour period and now time",
+			name: "2 hour period and now time",
 			p: datetime.Period{
 				Begin: time.Now().Add(-time.Hour),
 				End:   time.Now().Add(time.Hour),
 			},
 			t:   time.Now(),
 			ret: true,
+		},
+		{
+			name: "begin in 1 hour period and now time",
+			p: datetime.Period{
+				Begin: time.Now().Add(time.Hour),
+				End:   time.Now().Add(time.Hour),
+			},
+			t:   time.Now(),
+			ret: false,
 		},
 	}
 
