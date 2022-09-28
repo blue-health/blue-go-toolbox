@@ -51,7 +51,7 @@ func (p Period) Within(o Period) bool {
 		(p.End.Equal(o.End) || p.End.Before(o.End))
 }
 
-func (p Period) ContainsDate(t time.Time) bool {
+func (p Period) Contains(t time.Time) bool {
 	return (p.Begin.Equal(t) || p.Begin.Before(t)) &&
 		(p.End.Equal(t) || p.End.After(t))
 }
