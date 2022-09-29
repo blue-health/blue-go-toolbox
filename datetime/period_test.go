@@ -1,12 +1,71 @@
 package datetime_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/blue-health/blue-go-toolbox/datetime"
 	"github.com/stretchr/testify/require"
 )
+
+func TestNewPeriod(t *testing.T) {
+	var (
+		now      = time.Now()
+		dayBegin = datetime.StartOfDay(now)
+		dayEnd   = datetime.EndOfDay(now)
+	)
+
+	testCases := []struct {
+		begin, end time.Time
+		result     datetime.Period
+		err        bool
+	}{
+		{},
+		{
+			begin: now,
+			result: datetime.Period{
+				Begin: dayBegin,
+			},
+		},
+		{
+			end: now,
+			result: datetime.Period{
+				End: dayEnd,
+			},
+		},
+		{
+			begin: now,
+			end:   now,
+			result: datetime.Period{
+				Begin: dayBegin,
+				End:   dayEnd,
+			},
+		},
+		{
+			begin: now.Add(time.Hour),
+			end:   now,
+			err:   true,
+		},
+		{
+			begin: now,
+			end:   now.Add(-time.Hour),
+			err:   true,
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(fmt.Sprintf("%s %s", c.begin.String(), c.end.String()), func(t *testing.T) {
+			p, err := datetime.NewPeriod(c.begin, c.end)
+			if c.err {
+				require.NotNil(t, err)
+			} else {
+				require.Nil(t, err)
+				require.Equal(t, c.result, p)
+			}
+		})
+	}
+}
 
 func TestMonthOf(t *testing.T) {
 	testCases := []struct {
