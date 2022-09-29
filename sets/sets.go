@@ -14,6 +14,20 @@ func Sum[T comparable](i ...Set[T]) Set[T] {
 	return c
 }
 
+func Subtract[T comparable](a Set[T], i ...Set[T]) Set[T] {
+	c := make(map[T]struct{}, max(i...))
+
+	sum := Sum(i...)
+
+	for k := range a {
+		if _, ok := sum[k]; !ok {
+			c[k] = struct{}{}
+		}
+	}
+
+	return c
+}
+
 func Union[T comparable](i ...Set[T]) Set[T] {
 	var (
 		c = make(map[T]int, max(i...))
