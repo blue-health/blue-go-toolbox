@@ -12,15 +12,22 @@ type Period struct {
 
 var ErrBeforeAfterEnd = errors.New("before_cannot_be_after_end")
 
-func NewPeriod(a, b time.Time) (Period, error) {
-	a = StartOfDay(a)
-	b = EndOfDay(b)
-
-	if a.After(b) {
+func NewPeriod(begin, end time.Time) (Period, error) {
+	switch {
+	case begin.IsZero() && !end.IsZero():
+		return Period{End: EndOfDay(end)}, nil
+	case !begin.IsZero() && end.IsZero():
+		return Period{Begin: StartOfDay(begin)}, nil
+	case begin.IsZero() && end.IsZero():
+		return Period{}, nil
+	case begin.After(end):
 		return Period{}, ErrBeforeAfterEnd
 	}
 
-	return Period{Begin: a, End: b}, nil
+	begin = StartOfDay(begin)
+	end = EndOfDay(end)
+
+	return Period{Begin: begin, End: end}, nil
 }
 
 func StartOfDay(t time.Time) time.Time {
