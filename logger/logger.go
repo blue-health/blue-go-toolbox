@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/logging"
 	"github.com/blue-health/blue-go-toolbox/authn"
+	"github.com/getsentry/sentry-go"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -37,6 +38,15 @@ func (l Logger) LogResponseMessage(w http.ResponseWriter, r *http.Request, s int
 		v = logging.Warning
 	default:
 		v = logging.Error
+	}
+
+	if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+		switch v {
+		case logging.Warning:
+			hub.CaptureMessage(fmt.Sprintf("%s: %d", m, s))
+		case logging.Error:
+			hub.CaptureException(fmt.Errorf("%s: %d", m, s))
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -104,6 +114,15 @@ func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error)
 		v = logging.Warning
 	default:
 		v = logging.Error
+	}
+
+	if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+		switch v {
+		case logging.Warning:
+			hub.CaptureMessage(e.Error())
+		case logging.Error:
+			hub.CaptureException(e)
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
