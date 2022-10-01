@@ -43,9 +43,9 @@ func (l Logger) LogResponseMessage(w http.ResponseWriter, r *http.Request, s int
 	if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
 		switch v {
 		case logging.Warning:
-			hub.CaptureMessage(fmt.Sprintf("returning status code %d with message %s", s, m))
+			hub.CaptureMessage(fmt.Sprintf("%s: %d", m, s))
 		case logging.Error:
-			hub.CaptureException(fmt.Errorf("returning status code %d with message %s", s, m))
+			hub.CaptureException(fmt.Errorf("%s: %d", m, s))
 		}
 	}
 
