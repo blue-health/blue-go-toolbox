@@ -41,10 +41,7 @@ func (l Logger) LogResponseMessage(w http.ResponseWriter, r *http.Request, s int
 	}
 
 	if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
-		switch v {
-		case logging.Warning:
-			hub.CaptureMessage(fmt.Sprintf("%s: %d", m, s))
-		case logging.Error:
+		if v == logging.Error {
 			hub.CaptureException(fmt.Errorf("%s: %d", m, s))
 		}
 	}
@@ -117,10 +114,7 @@ func (l Logger) LogServiceError(w http.ResponseWriter, r *http.Request, e error)
 	}
 
 	if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
-		switch v {
-		case logging.Warning:
-			hub.CaptureMessage(e.Error())
-		case logging.Error:
+		if v == logging.Error {
 			hub.CaptureException(e)
 		}
 	}
