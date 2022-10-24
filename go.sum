@@ -73,8 +73,8 @@ github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAE
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
-github.com/bojanz/currency v1.0.5 h1:5vO21XkryUFUjyUtp/IsYaZNrnOlMh9pvOI5hP9tTaM=
-github.com/bojanz/currency v1.0.5/go.mod h1:JyG61PeIa9z2Y+UzPGbmOA3v78LQ53IaoSPcm1a2mZ8=
+github.com/bojanz/currency v1.0.6 h1:L9tDjPzLMRpk/CorgM0h7vySFBDwJ3CHYDwq6AaZNag=
+github.com/bojanz/currency v1.0.6/go.mod h1:JyG61PeIa9z2Y+UzPGbmOA3v78LQ53IaoSPcm1a2mZ8=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
