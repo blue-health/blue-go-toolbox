@@ -5,7 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/logging v1.5.0
 	cloud.google.com/go/secretmanager v1.7.0
-	github.com/MicahParks/keyfunc v1.4.0
+	github.com/MicahParks/keyfunc v1.9.0
 	github.com/bojanz/currency v1.0.5
 	github.com/dgraph-io/ristretto v0.1.0
 	github.com/getsentry/sentry-go v0.13.0
