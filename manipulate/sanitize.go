@@ -168,6 +168,8 @@ func cleanString(s string, r *regexp.Regexp) string {
 func accents(s string) string {
 	var b strings.Builder
 
+	b.Grow(len(s))
+
 	for _, c := range s {
 		if val, ok := transliterations[c]; ok {
 			b.WriteString(val)
