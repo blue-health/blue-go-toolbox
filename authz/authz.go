@@ -12,7 +12,7 @@ type (
 	Guard interface {
 		// Check authorizes the Identity ID stored in the context with the given permissions.
 		// Therefore, it should be used after the Enforce() middleware.
-		Check(...string) func(http.Handler) http.Handler
+		Check(...string) Middleware
 	}
 
 	// GuardImpl implements Guard. It stores a IdentityService to use to authorize an identity.
@@ -21,13 +21,15 @@ type (
 	Authorizer interface {
 		Authorize(context.Context, uuid.UUID, ...string) (bool, error)
 	}
+
+	Middleware func(next http.Handler) http.Handler
 )
 
 func NewGuard(authorizer Authorizer) *GuardImpl {
 	return &GuardImpl{authorizer: authorizer}
 }
 
-func (g *GuardImpl) Check(permissions ...string) func(http.Handler) http.Handler {
+func (g *GuardImpl) Check(permissions ...string) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			id, ok := authn.GetIdentityID(r.Context())

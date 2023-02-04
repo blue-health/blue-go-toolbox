@@ -14,8 +14,8 @@ import (
 )
 
 type (
-	Key    int
-	Policy struct{ jwks *keyfunc.JWKS }
+	Key        int
+	Middleware func(next http.Handler) http.Handler
 )
 
 const (
@@ -28,15 +28,7 @@ const (
 
 var ErrTokenInvalid = errors.New("token_invalid")
 
-func GetIdentityID(ctx context.Context) (uuid.UUID, bool) {
-	if i, ok := ctx.Value(IdentityID).(uuid.UUID); ok && i != uuid.Nil {
-		return i, true
-	}
-
-	return uuid.Nil, false
-}
-
-func NewPolicy(ctx context.Context, jwksURL string) (*Policy, error) {
+func FromJWT(ctx context.Context, jwksURL string) (Middleware, error) {
 	options := keyfunc.Options{
 		Ctx:               ctx,
 		Client:            &http.Client{Timeout: 30 * time.Second},
@@ -51,44 +43,64 @@ func NewPolicy(ctx context.Context, jwksURL string) (*Policy, error) {
 		return nil, fmt.Errorf("failed to create JWKs: %w", err)
 	}
 
-	return &Policy{jwks: jwks}, nil
-}
-
-func (p *Policy) Parser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		if q, ok := TokenFromHeader(r); ok {
-			if t, err := p.parse(q); err == nil {
-				ctx = context.WithValue(ctx, IdentityID, t)
-			}
+	parse := func(t string) (uuid.UUID, error) {
+		token, err := jwt.ParseWithClaims(t, &jwt.RegisteredClaims{}, jwks.Keyfunc)
+		if err != nil {
+			return uuid.Nil, fmt.Errorf("failed to parse token: %w", err)
 		}
 
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+		claims, ok := token.Claims.(*jwt.RegisteredClaims)
+		if !ok || !token.Valid {
+			return uuid.Nil, ErrTokenInvalid
+		}
+
+		if err = claims.Valid(); err != nil {
+			return uuid.Nil, fmt.Errorf("failed to validate claims: %w", err)
+		}
+
+		u, err := uuid.Parse(claims.Subject)
+		if err != nil {
+			return uuid.Nil, fmt.Errorf("failed to validate claims: %w", err)
+		}
+
+		return u, nil
+	}
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+
+			if q, ok := TokenFromHeader(r); ok {
+				if t, err := parse(q); err == nil {
+					ctx = context.WithValue(ctx, IdentityID, t)
+				}
+			}
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}, nil
 }
 
-func (p *Policy) parse(t string) (uuid.UUID, error) {
-	token, err := jwt.ParseWithClaims(t, &jwt.RegisteredClaims{}, p.jwks.Keyfunc)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to parse token: %w", err)
-	}
+func FromUUID(id uuid.UUID) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			ctx = context.WithValue(ctx, IdentityID, id)
 
-	claims, ok := token.Claims.(*jwt.RegisteredClaims)
-	if !ok || !token.Valid {
-		return uuid.Nil, ErrTokenInvalid
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
 	}
+}
 
-	if err = claims.Valid(); err != nil {
-		return uuid.Nil, fmt.Errorf("failed to validate claims: %w", err)
+func FromRandomUUID() Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			ctx = context.WithValue(ctx, IdentityID, uuid.New())
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
 	}
-
-	u, err := uuid.Parse(claims.Subject)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to validate claims: %w", err)
-	}
-
-	return u, nil
 }
 
 func Enforce(next http.Handler) http.Handler {
@@ -109,4 +121,12 @@ func TokenFromHeader(r *http.Request) (value string, found bool) {
 	}
 
 	return
+}
+
+func GetIdentityID(ctx context.Context) (uuid.UUID, bool) {
+	if i, ok := ctx.Value(IdentityID).(uuid.UUID); ok && i != uuid.Nil {
+		return i, true
+	}
+
+	return uuid.Nil, false
 }
