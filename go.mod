@@ -16,7 +16,7 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/microcosm-cc/bluemonday v1.0.22
 	github.com/stretchr/testify v1.8.1
-	golang.org/x/crypto v0.5.0
+	golang.org/x/crypto v0.6.0
 	gopkg.in/guregu/null.v4 v4.0.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -48,11 +48,11 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/net v0.6.0 // indirect
 	golang.org/x/oauth2 v0.4.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/api v0.109.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230202175211-008b39050e57 // indirect
