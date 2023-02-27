@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.7
 	github.com/microcosm-cc/bluemonday v1.0.22
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	golang.org/x/crypto v0.5.0
 	gopkg.in/guregu/null.v4 v4.0.0
 	gopkg.in/yaml.v3 v3.0.1
